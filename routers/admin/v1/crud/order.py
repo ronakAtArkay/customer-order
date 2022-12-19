@@ -59,6 +59,9 @@ def get_orders(start: int, limit: int, db: Session):
     )
     return db_order
 
+def get_all_orders(db: Session):
+    db_order = db.query(OrderModel).filter(OrderModel.is_deleted == False).all()
+    return db_order
 
 def update_order(id: str, orderSchema: OrderBase, db: Session):
     db_order = get_order_by_id(id=id, db=db)
