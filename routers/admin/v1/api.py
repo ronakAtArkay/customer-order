@@ -124,6 +124,7 @@ def get_orders(start: int = 0, limit: int = 50, db: Session = Depends(get_db)):
     data = order.get_orders(start=start, limit=limit, db=db)
     return data
 
+
 @router.get("/orders/all", response_model=List[orderList], tags=["customer-order"])
 def get_all_orders(db: Session = Depends(get_db)):
     data = order.get_all_orders(db=db)
@@ -131,12 +132,18 @@ def get_all_orders(db: Session = Depends(get_db)):
 
 
 @router.put("/order/{id}", response_model=orderList, tags=["customer-order"])
-def update_order(orderSchema: OrderBase,id: str = Path(min_length=36, max_length=36), db: Session = Depends(get_db)):
+def update_order(
+    orderSchema: OrderBase,
+    id: str = Path(min_length=36, max_length=36),
+    db: Session = Depends(get_db),
+):
     data = order.update_order(id=id, orderSchema=orderSchema, db=db)
     return data
 
 
 @router.delete("/order/{id}", tags=["customer-order"])
-def delete_order(id: str = Path(min_length=36, max_length=36), db: Session = Depends(get_db)):
+def delete_order(
+    id: str = Path(min_length=36, max_length=36), db: Session = Depends(get_db)
+):
     data = order.delete_order(id=id, db=db)
     return data

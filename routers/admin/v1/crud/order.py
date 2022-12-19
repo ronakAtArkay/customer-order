@@ -59,14 +59,16 @@ def get_orders(start: int, limit: int, db: Session):
     )
     return db_order
 
+
 def get_all_orders(db: Session):
     db_order = db.query(OrderModel).filter(OrderModel.is_deleted == False).all()
     return db_order
 
+
 def update_order(id: str, orderSchema: OrderBase, db: Session):
     db_order = get_order_by_id(id=id, db=db)
     verify_id = (
-        db.query( ProductModel)
+        db.query(ProductModel)
         .filter(
             ProductModel.id == orderSchema.product_id,
         )
@@ -94,7 +96,8 @@ def delete_order(id: str, db: Session):
     db.commit()
     db.refresh(db_order)
     customer_name = (
-        db.query(CoustomerModel).join(OrderModel)
+        db.query(CoustomerModel)
+        .join(OrderModel)
         .filter(CoustomerModel.id == db_order.customer_id)
         .first()
     )
@@ -102,6 +105,5 @@ def delete_order(id: str, db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
         )
-    
-    return f"{customer_name.name} your order is deleted successfully"
 
+    return f"{customer_name.name} your order is deleted successfully"
