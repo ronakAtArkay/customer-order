@@ -14,8 +14,6 @@ def add_order(orderSchema: OrderBase, db: Session):
         customer_id=orderSchema.customer_id,
         product_id=orderSchema.product_id,
     )
-    # customer_id = db.query(CoustomerModel).filter(CoustomerModel.id == orderSchema.customer_id).first()
-    # product_id = db.query(ProductModel).filter(ProductModel.id == orderSchema.product_id).first()
     verify_id = (
         db.query(CoustomerModel, ProductModel)
         .filter(
@@ -28,8 +26,6 @@ def add_order(orderSchema: OrderBase, db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="id not found"
         )
-    # if product_id is None:
-    #     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="id not found")
     db.add(db_order)
     db.commit()
     db.refresh(db_order)
@@ -66,7 +62,14 @@ def get_orders(start: int, limit: int, db: Session):
 
 def update_order(id: str, orderSchema: OrderBase, db: Session):
     db_order = get_order_by_id(id=id, db=db)
-    if db_order is None:
+    verify_id = (
+        db.query( ProductModel)
+        .filter(
+            ProductModel.id == orderSchema.product_id,
+        )
+        .first()
+    )
+    if verify_id is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
         )
@@ -79,12 +82,6 @@ def update_order(id: str, orderSchema: OrderBase, db: Session):
 
 def delete_order(id: str, db: Session):
     db_order = get_order_by_id(id=id, db=db)
-    customer_name = (
-        db.query(CoustomerModel)
-        .join(OrderModel)
-        .filter(OrderModel.customer_id == CoustomerModel.id)
-        .first()
-    )
     if db_order is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
@@ -93,4 +90,15 @@ def delete_order(id: str, db: Session):
     db_order.updated_at = date()
     db.commit()
     db.refresh(db_order)
-    return f"{customer_name.name} your order deleted successfully"
+    customer_name = (
+        db.query(CoustomerModel).join(OrderModel)
+        .filter(CoustomerModel.id == db_order.customer_id)
+        .first()
+    )
+    if customer_name is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
+        )
+    
+    return f"{customer_name.name} your order is deleted successfully"
+
