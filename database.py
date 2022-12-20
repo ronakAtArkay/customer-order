@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-url = "mysql+mysqlconnector://root:%s@localhost:3306/coustomer_db" % quote("Arkay@210")
+url = "mysql+mysqlconnector://root:%s@localhost:3306/customer_order_db" % quote("Arkay@210")
 
 engine = create_engine(url)
 
