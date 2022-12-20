@@ -1,3 +1,4 @@
+from sqlalchemy import inspect
 from typing import List
 
 from fastapi import HTTPException, status
@@ -91,19 +92,15 @@ def delete_order(id: str, db: Session):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
         )
+    print(object_as_dict(db_order.customer))
     db_order.is_deleted = True
     db_order.updated_at = date()
     db.commit()
     db.refresh(db_order)
-    customer_name = (
-        db.query(CoustomerModel)
-        .join(OrderModel)
-        .filter(CoustomerModel.id == db_order.customer_id)
-        .first()
-    )
-    if customer_name is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Order not found"
-        )
 
-    return f"{customer_name.name} your order is deleted successfully"
+    return f"{db_order.customer.name} your order is deleted successfully"
+
+
+
+def object_as_dict(obj):
+    return {c.key: getattr(obj, c.key) for c in inspect(obj).mapper.column_attrs}
